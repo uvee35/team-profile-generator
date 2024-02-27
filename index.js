@@ -1,122 +1,158 @@
-// Creates the team
-const generateTeam = team => {
 
-    // Html for the manager
-    const generateManager = manager => {
-        return `
-        <div class="col-lg-4 mb-4">
-            <div class="card manager-card">
-            <div class="card-header bg-success text-white">
-                <h2 class="card-title">${manager.getName()}</h2>
-                <h3 class="card-title"><i class="fas fa-briefcase mr-2"></i>${manager.getRole()}</h3>
-            </div>
-            <div class="card-body bg-light">
-                <ul class="list-group shadow-sm">
-                    <li class="list-group-item">ID: ${manager.getId()}</li>
-                    <li class="list-group-item">Email: <a href="mailto:${manager.getEmail()}">${manager.getEmail()}</a></li>
-                    <li class="list-group-item">Office: ${manager.getOfficeNumber()}</li>
-                </ul>
-            </div>
-            </div>
-        </div>
-        `;
-    };
+const Manager = require("./lib/Manager");
+const Engineer = require("./lib/Engineer");
+const Intern = require("./lib/Intern");
+const inquirer = require("inquirer");
+const path = require("path");
 
- // Html for engineers
-    const generateEngineer = engineer => {
-        return `
-        <div class="col-lg-4 mb-4">
-            <div class="card engineer-card">
-            <div class="card-header bg-info text-white">
-                <h2 class="card-title">${engineer.getName()}</h2>
-                <h3 class="card-title"><i class="fas fa-cogs mr-2"></i>${engineer.getRole()}</h3>
-            </div>
-            <div class="card-body bg-light">
-                <ul class="list-group shadow-sm">
-                    <li class="list-group-item">ID: ${engineer.getId()}</li>
-                    <li class="list-group-item">Email: <a href="mailto:${engineer.getEmail()}">${engineer.getEmail()}</a></li>
-                    <li class="list-group-item">GitHub: <a href="https://github.com/${engineer.getGithub()}" target="_blank" rel="noopener noreferrer">${engineer.getGithub()}</a></li>
-                </ul>
-            </div>
-            </div>
-        </div>
-        `;
-    };
+const render = require("./src/page-template.js");
+const { ifError } = require("assert");
+const { log } = require("console");
+const fs = require("fs");
 
-   // Html for interns
-    const generateIntern = intern => {
-        return `
-        <div class="col-lg-4 mb-4">
-            <div class="card intern-card">
-            <div class="card-header bg-warning text-dark">
-                <h2 class="card-title">${intern.getName()}</h2>
-                <h3 class="card-title"><i class="fas fa-book-reader mr-2"></i>${intern.getRole()}</h3>
-            </div>
-            <div class="card-body bg-light">
-                <ul class="list-group shadow-sm">
-                    <li class="list-group-item">ID: ${intern.getId()}</li>
-                    <li class="list-group-item">Email: <a href="mailto:${intern.getEmail()}">${intern.getEmail()}</a></li>
-                    <li class="list-group-item">School: ${intern.getSchool()}</li>
-                </ul>
-            </div>
-            </div>
-        </div>
-        `;
-    };
+const OUTPUT_DIR = path.resolve(__dirname, "output");
+const outputPath = path.join(OUTPUT_DIR, "team.html");
 
-    const html = [];
 
-    html.push(team
-        .filter(employee => employee.getRole() === "Manager")
-        .map(manager => generateManager(manager))
-    );
-    html.push(team
-        .filter(employee => employee.getRole() === "Engineer")
-        .map(engineer => generateEngineer(engineer))
-        .join("")
-    );
-    html.push(team
-        .filter(employee => employee.getRole() === "Intern")
-        .map(intern => generateIntern(intern))
-        .join("")
-    );
+// Gather information about the development team members and render the HTML file.
 
-    return html.join("");
+const teamMembers = [];
 
-}
-
-// Export function to generate entire page
-module.exports = team => {
-
-    return `
-    <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Our Amazing Team</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSLIFnOIdc2xVpCMEfqE1iG4RU29XdhH3cB6I2" crossorigin="anonymous">
-    <link rel="stylesheet" href="custom-style.css">
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
-</head>
-
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12 jumbotron mb-3 team-heading bg-secondary">
-                <h1 class="text-center text-white">Our Incredible Team</h1>
-            </div>
-        </div>
-    </div>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-        ${generateTeam(team)}
-        </div>
-    </div>
-</body>
-</html>
-    `;
+function getManagerInfo() { // Gets Manager's Information
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "name",
+            message: "What is the team manager's name?",
+        },
+        {
+            type: "input",
+            name: "id",
+            message: "What is the team manager's id?",
+        },
+        {
+            type: "input",
+            name: "email",
+            message: "What is the team manager's email?",
+        },
+        {
+            type: "input",
+            name: "officeNumber",
+            message: "What is the team manager's office number?"
+        },
+    ])
+    
+    .then((answers) => {
+        const manager = new Manager(answers.name, answers.id, answers.email, answers.officeNumber); 
+        teamMembers.push(manager); // Pushes manager into teamMembers array
+        addTeamMember();
+    });
 };
+
+function addTeamMember() {
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'memberType',
+            message: 'What type of team member would you like to add?',
+            choices: ['Engineer', 'Intern', 'Finish building the team']
+        }
+    ])
+
+    .then((answers) => {
+        switch (answers.memberType) {
+            case 'Engineer': 
+                addEngineer();
+                break;
+        
+            case 'Intern':
+                addIntern();
+                break;
+            
+            case 'Finish building the team':
+                renderTeam();
+                break;
+        };
+    })
+
+};
+
+function addEngineer() {
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "name",
+            message: "What is the engineer's name?",
+        },
+        {
+            type: "input",
+            name: "id",
+            message: "What is the engineer's id?",
+        },
+        {
+            type: "input",
+            name: "email",
+            message: "What is the engineer's email?",
+        },
+        {
+            type: "input",
+            name: "github",
+            message: "What is the team engineer's GitHub username?"
+        },
+    ])
+    
+    .then((answers) => {
+        const engineer = new Engineer(answers.name, answers.id, answers.email, answers.github); 
+        teamMembers.push(engineer); // Pushes engineer into teamMembers array
+        addTeamMember();
+    });
+};
+
+function addIntern() {
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "name",
+            message: "What is the intern's name?",
+        },
+        {
+            type: "input",
+            name: "id",
+            message: "What is the intern's id?",
+        },
+        {
+            type: "input",
+            name: "email",
+            message: "What is the intern's email?",
+        },
+        {
+            type: "input",
+            name: "school",
+            message: "What is the name of the school the intern attends?"
+        },
+    ])
+    
+    .then((answers) => {
+        const intern = new Intern(answers.name, answers.id, answers.email, answers.school); 
+        teamMembers.push(intern); // Pushes intern into teamMembers array
+        addTeamMember();
+    });
+};
+
+function renderTeam() { // Creates the HTML file
+    const html = render(teamMembers);
+
+    if (!fs.existsSync(OUTPUT_DIR)) {
+        fs.mkdirSync(OUTPUT_DIR)
+    };
+    
+    fs.writeFile(outputPath, html, (err) =>{
+        err ? console.error(err) : console.log('Team HTML has been created!');
+    });
+};
+
+const init = () => { // Initializes getManagerInfo when page loads.
+    getManagerInfo();
+};
+
+init();
