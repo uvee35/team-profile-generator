@@ -62,9 +62,10 @@ Once you have Node.js installed continue with the following steps:
 
 ## Images
 
-![Generated Team Profile]
+![Generated Team Profile]<img width="1105" alt="Screenshot 2024-03-08 at 22 25 33" src="https://github.com/uvee35/team-profile-generator/assets/151088688/ff5f1d31-3433-4222-92bc-161a69e22b50">
 
-<img width="1111" alt="Screenshot 2024-03-08 at 22 21 29" src="https://github.com/uvee35/team-profile-generator/assets/151088688/d4d5a669-ca51-4b88-a48c-eec5910136d4">
+
+
 
 
 ## License
