@@ -1,4 +1,4 @@
-# team-profile-generator
+
  
 # Team Profile Generator
 
@@ -74,7 +74,7 @@ This application is covered under the GNU GPL v3 License.
 
 ## Contributing
 
-For contributions you may contact me [here](https://github.com/SebZG).
+For contributions you may contact me [here](https://github.com/uvee35).
 
 ## Questions
 
